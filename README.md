@@ -1,2 +1,2 @@
 # DynamicSkins
-An attempt at adding DynamicBones to Custom Skins of Standard Characters for RoR2  
+An attempt at making it easier to add DynamicBones to Custom Skins of Standard Characters for RoR2  
