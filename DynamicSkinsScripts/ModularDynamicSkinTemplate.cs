@@ -132,7 +132,9 @@ namespace ModName
       {
         clearModification(modifications.OtherModifications[0], modelObject, modifications); //clearmodification calls remove on applied Mod.
       }
-
+	  
+	  //remove the object from modified once all mods are cleared
+      ModifiedObjects.Remove(modelObject);
     }
 
     private static void ApplySkinModifications(GameObject modelObject, AppliedModifications modifications)

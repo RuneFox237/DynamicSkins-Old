@@ -214,6 +214,14 @@ class DynamicBoneColliderData
 [CustomEditor(typeof(DynamicBoneReader))]
 class DynamicBoneReaderEditor : Editor
 {
+  SerializedProperty SkirtPrefab_m;
+
+  void OnEnable()
+  {
+    // Fetch the objects from the GameObject script to display in the inspector
+    SkirtPrefab_m = serializedObject.FindProperty("SkirtPrefab_m");
+  }
+
   public override void OnInspectorGUI()
   {
     DrawDefaultInspector();
