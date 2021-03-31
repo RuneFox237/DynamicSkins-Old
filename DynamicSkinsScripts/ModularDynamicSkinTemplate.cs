@@ -5,6 +5,14 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using RuneFoxMods;
+using MonoMod.RuntimeDetour;
+    
+
+//TODO: Add a way to have multiple DynamicBone Scripts added to one Modification
+
+
+
+
 
 //NameSpace and SkinName are generated from SkinDef Generator
 namespace ModName
@@ -37,7 +45,10 @@ namespace ModName
     {
       Instance = this;
 
-      On.RoR2.SkinDef.Apply += SkinDefApply;
+      //On.RoR2.SkinDef.Apply += SkinDefApply; //Old hook for use w/ mmhook
+	  new Hook(typeof(SkinDef).GetMethod(nameof(SkinDef.Apply)), (Action<Action<SkinDef, GameObject>, SkinDef, GameObject>) SkinDefApply).Apply();
+    
+
     }
 
     partial void AfterAwake()
@@ -46,6 +57,7 @@ namespace ModName
       //////////////////////////////////////////////////
       //Should Load all modifications here
       ModificationName = new Modification("PrefabName.prefab", "ParentName", "BodyName", false, assetBundle);
+	  //TODO: Add a way to load multiple Dynamic Bone Scripts per modification
       ModificationName.dynamicBoneData = new DynamicBoneData(); //get from DB reader
 
       //add mods to mod list
@@ -65,8 +77,9 @@ namespace ModName
     ////////////////////////////////////////////////////////////////////////////
     ////// Local Functions (these should not need to be changed when added to different skins)
 
-    private static void SkinDefApply(On.RoR2.SkinDef.orig_Apply orig, SkinDef self, GameObject modelObject)
-    {
+    //private static void SkinDefApply(On.RoR2.SkinDef.orig_Apply orig, SkinDef self, GameObject modelObject) //Old SkinDefApply for use w/ mmhook
+    private static void SkinDefApply(Action<SkinDef, GameObject> orig, SkinDef self, GameObject modelObject)
+	{
       orig(self, modelObject);
 
       RemoveInvalidModelObjects();
@@ -143,7 +156,7 @@ namespace ModName
 
       LastModelObject = modelObject;
       //////////////////////////////////////////////////////////////////////////////////////
-      /// TODO: create a loop that iterates through the list of modifications and applies them
+      ///
       foreach (var mod in ModificationList)
       {
 
@@ -172,7 +185,8 @@ namespace ModName
       var bodyname = modification.bodyname;
       var parentname = modification.parentname;
 
-      var parentBone = modelObject.transform.Find(RuneFoxMods.ChildHelper.GetPath(bodyname, parentname));
+      var parentBone = RuneFoxMods.Utils.FindChildInTree(modelObject.transform, parentname);
+      //var parentBone = modelObject.transform.Find(RuneFoxMods.ChildHelper.GetPath(bodyname, parentname));
 
       GameObject newPart;
 
@@ -207,7 +221,6 @@ namespace ModName
           renderer.bones = newBones.ToArray();
         }
 
-        //TODO: add modification to list of modifications that affect Baise Armature/Model for ordered removeal later
         modifications.BaseModelModifications.Push(modification);
 
         /// Add Bones to Base Armature here
@@ -233,7 +246,8 @@ namespace ModName
       }
       modification.instance = newPart;
 
-
+	  //TODO: add a way to load multiple DynamicBone Scripts for a single modification
+	
       ///////////////////////////////////////////////////////////
       /// Add dynamic bones stuff here
       /// Things like DynamicBones Component, assigning values to dynamic bones component, adding DB_Colliders and editing them, etc.
@@ -249,8 +263,10 @@ namespace ModName
 
       foreach (var colliderData in modification.dynamicBoneData.m_Colliders)
       {
-        var parent = modelObject.transform.Find(RuneFoxMods.ChildHelper.GetPath(bodyname, colliderData.m_parent_name));
-        var bonecollider = parent.gameObject.AddComponent<DynamicBoneCollider>();
+        var parent = RuneFoxMods.Utils.FindChildInTree(modelObject.transform, colliderData.m_parent_name);
+        //var parent = modelObject.transform.Find(RuneFoxMods.ChildHelper.GetPath(bodyname, colliderData.m_parent_name));
+        
+		var bonecollider = parent.gameObject.AddComponent<DynamicBoneCollider>();
 
         bonecollider.m_Direction = colliderData.m_Direction;
         bonecollider.m_Center = colliderData.m_Center;
@@ -401,6 +417,9 @@ namespace ModName
       public string parentname; //the name of the bone we want to parent this modification to
       public GameObject prefab;
       public bool affectsbasemodel; //if the modification affects the base model then we need to do additional steps
+	  //TODO: Add Support for multiple Dynamic Bone Scripts per modification
+	  public DynamicBoneData dynamicBoneData;
+
                                     /// 
       //////////////////////////////////////////////////////
 
@@ -415,9 +434,11 @@ namespace ModName
       /// These objects are instanceated and destroyed on skinDefApply
       public GameObject instance; //The created instance of the prefab attatched to the character
       public GameObject inst_armature; //the armature of the created instance
+	  
+	  //TODO: add support for multiple DynamicBone Scripts per modification
       public DynamicBone inst_dynamicBone; //the dynamic bone attatched to the instance
       public List<DynamicBoneCollider> inst_DB_colliders = new List<DynamicBoneCollider>(); //List of Dynamic Bone Colliders that were attatched to other bones for this modification
-                                                                                            ///
+                                                                                         ///
       //////////////////////////////////////////////////////
 
       //This only contained the Skinned Mesh Renderers and I think I can do these inline instead
@@ -431,7 +452,6 @@ namespace ModName
       // /// These don't seem to be created or destroyed and are just assigned to
       // //////////////////////////////////////////////////////
 
-      public DynamicBoneData dynamicBoneData;
     }
 
     class AppliedModifications

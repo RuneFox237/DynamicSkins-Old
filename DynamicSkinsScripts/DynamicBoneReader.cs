@@ -28,6 +28,12 @@ public class DynamicBoneReader : MonoBehaviour
     return constructor;
   }
 
+  ///////////////////////////////////////////////////////////////////
+  // including two versions of each as RoR2 uses an older version of DynamicBone so we have an older DynamicBoneCollider class
+  // DynamicBoneColliderBase is the newer version and may throw an error if you're using the older version. And vice-versa
+  // So try and see if deleting the offending version to see if the errors clear up
+  // The Older version that RoR2 uses does not support Plane Coliiders
+
   string PrintColliders(List<DynamicBoneColliderBase> colliders)
   {
     string str = "\nnew List<DynamicBoneColliderData>() {";
@@ -35,7 +41,25 @@ public class DynamicBoneReader : MonoBehaviour
     {
       str += "\n  " + PrintCollider(coll) + ", ";
     }
-    
+
+    if (colliders.Count != 0)
+    {
+      str = str.Remove(str.Length - 2);
+      str += "\n";
+    }
+
+    str += "}";
+    return str;
+  }
+
+  string PrintColliders(List<DynamicBoneCollider> colliders)
+  {
+    string str = "\nnew List<DynamicBoneColliderData>() {";
+    foreach (var coll in colliders)
+    {
+      str += "\n  " + PrintCollider(coll) + ", ";
+    }
+
     if (colliders.Count != 0)
     {
       str = str.Remove(str.Length - 2);
@@ -48,17 +72,23 @@ public class DynamicBoneReader : MonoBehaviour
 
   string PrintCollider(DynamicBoneColliderBase collider)
   {
-    //Let's see if this work
-    DynamicBoneCollider coll = collider as DynamicBoneCollider;
-
-    return "new DynamicBoneColliderData(" + 
-      PrintString(coll.transform.name) + ", " +
-      "DynamicBoneCollider.Direction." + coll.m_Direction + ", " +
-      PrintVector3(coll.m_Center) + ", " +
-      "DynamicBoneCollider.Bound." + coll.m_Bound + ", " +
-      PrintFloat(coll.m_Radius) +", "+ PrintFloat(coll.m_Height) + ")";
+    return PrintCollider(collider as DynamicBoneCollider);
   }
 
+  string PrintCollider(DynamicBoneCollider collider)
+  {
+    return "new DynamicBoneColliderData(" +
+      PrintString(collider.transform.name) + ", " +
+      "DynamicBoneCollider.Direction." + collider.m_Direction + ", " +
+      PrintVector3(collider.m_Center) + ", " +
+      "DynamicBoneCollider.Bound." + collider.m_Bound + ", " +
+      PrintFloat(collider.m_Radius) + ", " + PrintFloat(collider.m_Height) + ")";
+  }
+
+  //
+  ///////////////////////////////////////////////////////////////////
+
+  
   //adds quotes around a string to turn it into a static string
   string PrintString(string str)
   { 
@@ -214,13 +244,13 @@ class DynamicBoneColliderData
 [CustomEditor(typeof(DynamicBoneReader))]
 class DynamicBoneReaderEditor : Editor
 {
-  SerializedProperty SkirtPrefab_m;
-
-  void OnEnable()
-  {
-    // Fetch the objects from the GameObject script to display in the inspector
-    SkirtPrefab_m = serializedObject.FindProperty("SkirtPrefab_m");
-  }
+  //SerializedProperty SkirtPrefab_m;
+  //
+  //void OnEnable()
+  //{
+  //  // Fetch the objects from the GameObject script to display in the inspector
+  //  SkirtPrefab_m = serializedObject.FindProperty("SkirtPrefab_m");
+  //}
 
   public override void OnInspectorGUI()
   {
