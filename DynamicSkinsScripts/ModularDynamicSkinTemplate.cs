@@ -6,12 +6,6 @@ using System.Linq;
 using UnityEngine;
 using RuneFoxMods;
 using MonoMod.RuntimeDetour;
-    
-
-//TODO: Add a way to have multiple DynamicBone Scripts added to one Modification
-
-
-
 
 
 //NameSpace and SkinName are generated from SkinDef Generator
@@ -35,8 +29,8 @@ namespace ModName
     private static Dictionary<GameObject, AppliedModifications> ModifiedObjects = new Dictionary<GameObject, AppliedModifications>();
 
     //This uses Name of class 
-    private static SkinNamePlugin Instance { get; set; }
-    private static ManualLogSource InstanceLogger => Instance?.Logger;
+    //private static SkinNamePlugin Instance { get; set; }
+    //private static ManualLogSource InstanceLogger => Instance?.Logger;
     /// Local Declarations
     ///////////////////////////////////////////////////////////
 
@@ -48,7 +42,6 @@ namespace ModName
       //On.RoR2.SkinDef.Apply += SkinDefApply; //Old hook for use w/ mmhook
 	  new Hook(typeof(SkinDef).GetMethod(nameof(SkinDef.Apply)), (Action<Action<SkinDef, GameObject>, SkinDef, GameObject>) SkinDefApply).Apply();
     
-
     }
 
     partial void AfterAwake()
