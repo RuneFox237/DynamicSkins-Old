@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using UnityEngine;
 using UnityEditor;
 
@@ -97,7 +98,7 @@ public class DynamicBoneReader : MonoBehaviour
 
   string PrintFloat(float f)
   {
-    return f + "f";
+    return f.ToString("G", CultureInfo.InvariantCulture) + "f";
   }
 
   string PrintExclusions(List<Transform> exclusions)
@@ -151,7 +152,7 @@ public class DynamicBoneReader : MonoBehaviour
 
   string PrintVector3(Vector3 vec)
   {
-    return "new Vector3(" + vec.x + "f, " + vec.y + "f, " + vec.z + "f)";
+    return "new Vector3(" + PrintFloat(vec.x) + ", " + PrintFloat(vec.y) + ", " + PrintFloat(vec.z) + ")";
   }
 }
 

@@ -41,7 +41,6 @@ namespace ModName
 
       //On.RoR2.SkinDef.Apply += SkinDefApply; //Old hook for use w/ mmhook
 	  new Hook(typeof(SkinDef).GetMethod(nameof(SkinDef.Apply)), (Action<Action<SkinDef, GameObject>, SkinDef, GameObject>) SkinDefApply).Apply();
-    
     }
 
     partial void AfterAwake()
@@ -51,7 +50,7 @@ namespace ModName
       //Should Load all modifications here
       ModificationName = new Modification("PrefabName.prefab", "ParentName", "BodyName", false, assetBundle);
 	  //TODO: Add a way to load multiple Dynamic Bone Scripts per modification
-      ModificationName.dynamicBoneData = new DynamicBoneData(); //get from DB reader
+      ModificationName.dynamicBoneData = null; //get from DB reader
 
       //add mods to mod list
       ModificationList.Add(ModificationName);
@@ -240,10 +239,16 @@ namespace ModName
       modification.instance = newPart;
 
 	  //TODO: add a way to load multiple DynamicBone Scripts for a single modification
+	  
+	  
 	
       ///////////////////////////////////////////////////////////
       /// Add dynamic bones stuff here
       /// Things like DynamicBones Component, assigning values to dynamic bones component, adding DB_Colliders and editing them, etc.
+	
+	  if(modification.dynamicBoneData != null)
+	  {
+		  
 
       //======================================
       //Add Dynamic Bone Component
@@ -310,6 +315,8 @@ namespace ModName
       DB.m_FreezeAxis = modification.dynamicBoneData.m_FreezeAxis;
 
       //TODO: Read DB and compare it to what's made in OG mod cause skirt is behaving oddly
+	  
+	  }
 
       /// Add dynamic bones stuff here
       ///////////////////////////////////////////////////////////
@@ -356,11 +363,13 @@ namespace ModName
     private static void clearModification(Modification modification, GameObject modelObject, AppliedModifications modifications)
     {
       //Destroy Dynamic Bones colliders
-      foreach (var collider in modification.inst_DB_colliders)
-      {
-        Destroy(collider);
-      }
-
+	  if(modification.inst_DB_colliders != null)
+	  {		  
+		foreach (var collider in modification.inst_DB_colliders)
+		{
+			Destroy(collider);
+		}
+	  }
 
       //Remove Additions to Bone Arrays
       if (modification.affectsbasemodel)
@@ -492,6 +501,7 @@ namespace ModName
         m_FreezeAxis = freeze_axis;
 
       }
+	  
 
       //would include string for parent_name but all dynamicbones should be created on modification_instance
 
