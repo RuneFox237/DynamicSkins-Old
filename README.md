@@ -6,3 +6,6 @@ Thanks to KingEnderBrine for the initial tutorials on how to create custom skins
 
 Example Project using the scripts
 https://github.com/RuneFox237/RenamonArtificer
+
+## Blender Py Scripts
+With the Survivors of the Void update to RoR2 came changes to the game's file system which made the old way of ripping unreliable. These are the blender scripts I use in my workflow to reorder and fix the bones of ripped models. They are modified from [KingEnderBrines original blender scripts](https://github.com/KingEnderBrine/-RoR2-BlenderScripts) and meant to be used with [this specific workflow](https://github.com/RuneFox237/DynamicSkins/wiki/Ripping-Characters-for-skins-from-RoR2-Post-SotV)
